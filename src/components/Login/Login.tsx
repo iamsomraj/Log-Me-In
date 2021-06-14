@@ -6,7 +6,8 @@ import {
   FormLabel,
   Heading,
   Input,
-  Stack, useColorModeValue
+  Stack,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 
@@ -19,33 +20,21 @@ const Login: React.FC<LoginProps> = (props) => {
   const [emailIsValid, setEmailIsValid] = useState(true);
   const [enteredPassword, setEnteredPassword] = useState("");
   const [passwordIsValid, setPasswordIsValid] = useState(true);
-  const [formIsValid, setFormIsValid] = useState(false);
 
   const emailChangeHandler: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
     setEnteredEmail(event.target.value);
-    setFormIsValid(validateEmailHandler() && validatePasswordHandler());
+    const isValid = event.target.value.includes("@");
+    setEmailIsValid(isValid);
   };
 
   const passwordChangeHandler: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
     setEnteredPassword(event.target.value);
-
-    setFormIsValid(validateEmailHandler() && validatePasswordHandler());
-  };
-
-  const validateEmailHandler = () => {
-    const isValid = enteredEmail.includes("@");
-    setEmailIsValid(isValid);
-    return isValid;
-  };
-
-  const validatePasswordHandler = () => {
-    const isValid = enteredPassword.trim().length > 5;
+    const isValid = event.target.value.trim().length > 3;
     setPasswordIsValid(isValid);
-    return isValid;
   };
 
   const submitHandler: React.MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -92,7 +81,7 @@ const Login: React.FC<LoginProps> = (props) => {
               <Button
                 type="submit"
                 onClick={submitHandler}
-                isDisabled={!formIsValid}
+                isDisabled={!emailIsValid || !passwordIsValid}
                 bg={"blue.400"}
                 color={"white"}
                 _hover={{
