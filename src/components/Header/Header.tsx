@@ -11,7 +11,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = (props) => {
   let buttonOptions = (
     <>
-      <Button fontSize={"sm"} fontWeight={400} variant={"link"} href={"#"}>
+      <Button fontSize={"sm"} fontWeight={400} href={"#"}>
         Sign In
       </Button>
       <Button
