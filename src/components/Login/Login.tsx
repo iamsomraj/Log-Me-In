@@ -10,6 +10,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { useEffect } from "react";
 
 interface LoginProps {
   onLogin: (email: string, password: string) => void;
@@ -25,17 +26,23 @@ const Login: React.FC<LoginProps> = (props) => {
     event
   ) => {
     setEnteredEmail(event.target.value);
-    const isValid = event.target.value.includes("@");
-    setEmailIsValid(isValid);
   };
 
   const passwordChangeHandler: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
     setEnteredPassword(event.target.value);
-    const isValid = event.target.value.trim().length > 3;
-    setPasswordIsValid(isValid);
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setEmailIsValid(enteredEmail.includes("@"));
+      setPasswordIsValid(enteredPassword.trim().length > 3);
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [enteredEmail, enteredPassword]);
 
   const submitHandler: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
