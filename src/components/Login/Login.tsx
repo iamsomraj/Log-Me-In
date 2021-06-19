@@ -2,14 +2,14 @@ import {
   Box,
   Button,
   Flex,
-  FormControl,
-  FormLabel,
   Heading,
-  Input,
   Stack,
-  useColorModeValue
+  useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useEffect, useReducer } from "react";
+import { useRef } from "react";
+import InputControl from "../Input/Input";
+import { RefObject } from "../Util/type";
 
 enum EmailActionTypes {
   USER_EMAIL_INPUT = "USER_EMAIL_INPUT",
@@ -103,6 +103,9 @@ const passwordReducer = (
 };
 
 const Login: React.FC<LoginProps> = (props) => {
+  const emailRef = useRef<RefObject>(null);
+  const passwordRef = useRef<RefObject>(null);
+
   const [emailState, emailDispatch] = useReducer(
     emailReducer,
     initialStateEmail
@@ -147,6 +150,19 @@ const Login: React.FC<LoginProps> = (props) => {
 
   const submitHandler: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
+    if (!emailState.isValid) {
+      if (emailRef.current) {
+        emailRef.current.focus();
+      }
+      return;
+    }
+
+    if (!passwordState.isValid) {
+      if (passwordRef.current) {
+        passwordRef.current.focus();
+      }
+      return;
+    }
     props.onLogin(emailState.value, passwordState.value);
   };
 
@@ -167,29 +183,28 @@ const Login: React.FC<LoginProps> = (props) => {
           p={8}
         >
           <Stack spacing={4}>
-            <FormControl id="email">
-              <FormLabel>Email address</FormLabel>
-              <Input
-                isInvalid={!emailState.isValid}
-                type="email"
-                value={emailState.value}
-                onChange={emailChangeHandler}
-              />
-            </FormControl>
-            <FormControl id="password">
-              <FormLabel>Password</FormLabel>
-              <Input
-                isInvalid={!passwordState.isValid}
-                type="password"
-                value={passwordState.value}
-                onChange={passwordChangeHandler}
-              />
-            </FormControl>
+            <InputControl
+              ref={emailRef}
+              id="email"
+              isValid={emailState.isValid}
+              label="Email Address"
+              onChange={emailChangeHandler}
+              type="email"
+              value={emailState.value}
+            />
+            <InputControl
+              ref={passwordRef}
+              id="password"
+              isValid={passwordState.isValid}
+              label="Password"
+              onChange={passwordChangeHandler}
+              type="password"
+              value={passwordState.value}
+            />
             <Stack spacing={10}>
               <Button
                 type="submit"
                 onClick={submitHandler}
-                isDisabled={!emailState.isValid || !passwordState.isValid}
                 bg={"blue.400"}
                 color={"white"}
                 _hover={{
