@@ -7,46 +7,147 @@ import {
   Heading,
   Input,
   Stack,
-  useColorModeValue,
+  useColorModeValue
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
+
+enum EmailActionTypes {
+  USER_EMAIL_INPUT = "USER_EMAIL_INPUT",
+  USER_EMAIL_VALID = "USER_EMAIL_VALID",
+}
+
+enum PasswordActionTypes {
+  USER_PASSWORD_INPUT = "USER_PASSWORD_INPUT",
+  USER_PASSWORD_VALID = "USER_PASSWORD_VALID",
+}
+
+interface UserEmailInputAction {
+  type: EmailActionTypes.USER_EMAIL_INPUT;
+  payload: string;
+}
+
+interface UserEmailValidAction {
+  type: EmailActionTypes.USER_EMAIL_VALID;
+}
+
+interface UserPasswordInputAction {
+  type: PasswordActionTypes.USER_PASSWORD_INPUT;
+  payload: string;
+}
+
+interface UserPasswordValidAction {
+  type: PasswordActionTypes.USER_PASSWORD_VALID;
+}
+
+type EmailAction = UserEmailInputAction | UserEmailValidAction;
+type PasswordAction = UserPasswordInputAction | UserPasswordValidAction;
 
 interface LoginProps {
   onLogin: (email: string, password: string) => void;
 }
 
+const initialStateEmail = {
+  value: "",
+  isValid: true,
+};
+
+const initialStatePassword = {
+  value: "",
+  isValid: true,
+};
+
+const emailReducer = (
+  state: {
+    value: string;
+    isValid: boolean;
+  },
+  action: EmailAction
+) => {
+  switch (action.type) {
+    case EmailActionTypes.USER_EMAIL_INPUT:
+      return {
+        value: action.payload,
+        isValid: action.payload.includes("@"),
+      };
+    case EmailActionTypes.USER_EMAIL_VALID:
+      return {
+        value: state.value,
+        isValid: state.value.includes("@"),
+      };
+    default:
+      return state;
+  }
+};
+
+const passwordReducer = (
+  state: {
+    value: string;
+    isValid: boolean;
+  },
+  action: PasswordAction
+) => {
+  switch (action.type) {
+    case PasswordActionTypes.USER_PASSWORD_INPUT:
+      return {
+        value: action.payload,
+        isValid: action.payload.trim().length > 4,
+      };
+    case PasswordActionTypes.USER_PASSWORD_VALID:
+      return {
+        value: state.value,
+        isValid: state.value.trim().length > 4,
+      };
+    default:
+      return state;
+  }
+};
+
 const Login: React.FC<LoginProps> = (props) => {
-  const [enteredEmail, setEnteredEmail] = useState("");
-  const [emailIsValid, setEmailIsValid] = useState(true);
-  const [enteredPassword, setEnteredPassword] = useState("");
-  const [passwordIsValid, setPasswordIsValid] = useState(true);
+  const [emailState, emailDispatch] = useReducer(
+    emailReducer,
+    initialStateEmail
+  );
+
+  const [passwordState, passwordDispatch] = useReducer(
+    passwordReducer,
+    initialStatePassword
+  );
 
   const emailChangeHandler: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    setEnteredEmail(event.target.value);
+    emailDispatch({
+      type: EmailActionTypes.USER_EMAIL_INPUT,
+      payload: event.target.value,
+    });
   };
 
   const passwordChangeHandler: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
-    setEnteredPassword(event.target.value);
+    passwordDispatch({
+      type: PasswordActionTypes.USER_PASSWORD_INPUT,
+      payload: event.target.value,
+    });
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setEmailIsValid(enteredEmail.includes("@"));
-      setPasswordIsValid(enteredPassword.trim().length > 3);
+      emailDispatch({
+        type: EmailActionTypes.USER_EMAIL_VALID,
+      });
+      passwordDispatch({
+        type: PasswordActionTypes.USER_PASSWORD_VALID,
+      });
     }, 500);
     return () => {
       clearTimeout(timer);
     };
-  }, [enteredEmail, enteredPassword]);
+  }, [emailState.value, passwordState.value]);
 
   const submitHandler: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
-    props.onLogin(enteredEmail, enteredPassword);
+    props.onLogin(emailState.value, passwordState.value);
   };
 
   return (
@@ -69,18 +170,18 @@ const Login: React.FC<LoginProps> = (props) => {
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input
-                isInvalid={!emailIsValid}
+                isInvalid={!emailState.isValid}
                 type="email"
-                value={enteredEmail}
+                value={emailState.value}
                 onChange={emailChangeHandler}
               />
             </FormControl>
             <FormControl id="password">
               <FormLabel>Password</FormLabel>
               <Input
-                isInvalid={!passwordIsValid}
+                isInvalid={!passwordState.isValid}
                 type="password"
-                value={enteredPassword}
+                value={passwordState.value}
                 onChange={passwordChangeHandler}
               />
             </FormControl>
@@ -88,7 +189,7 @@ const Login: React.FC<LoginProps> = (props) => {
               <Button
                 type="submit"
                 onClick={submitHandler}
-                isDisabled={!emailIsValid || !passwordIsValid}
+                isDisabled={!emailState.isValid || !passwordState.isValid}
                 bg={"blue.400"}
                 color={"white"}
                 _hover={{
