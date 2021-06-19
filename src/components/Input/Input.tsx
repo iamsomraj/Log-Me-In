@@ -2,11 +2,11 @@ import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import React, { forwardRef, Ref } from "react";
 import { useRef } from "react";
 import { useImperativeHandle } from "react";
-import { RefObject } from "../Util/type";
+import { RefObjectType } from "../Util/type";
 
 interface InputControlProps {
   id: string;
-  ref: Ref<RefObject>;
+  ref: Ref<RefObjectType>;
   label: string;
   isValid: boolean;
   type: string;
@@ -15,7 +15,7 @@ interface InputControlProps {
 }
 
 const InputControl: React.FC<InputControlProps> = forwardRef(
-  (props, ref: Ref<RefObject>) => {
+  (props, ref: Ref<RefObjectType>) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const activate = () => {

@@ -9,7 +9,7 @@ import {
 import React, { useEffect, useReducer } from "react";
 import { useRef } from "react";
 import InputControl from "../Input/Input";
-import { RefObject } from "../Util/type";
+import { RefObjectType } from "../Util/type";
 
 enum EmailActionTypes {
   USER_EMAIL_INPUT = "USER_EMAIL_INPUT",
@@ -103,8 +103,8 @@ const passwordReducer = (
 };
 
 const Login: React.FC<LoginProps> = (props) => {
-  const emailRef = useRef<RefObject>(null);
-  const passwordRef = useRef<RefObject>(null);
+  const emailRef = useRef<RefObjectType>(null);
+  const passwordRef = useRef<RefObjectType>(null);
 
   const [emailState, emailDispatch] = useReducer(
     emailReducer,
